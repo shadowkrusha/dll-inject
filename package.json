@@ -1,6 +1,6 @@
 {
   "name": "@ffxiv-teamcraft/dll-inject",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "LoadLibrary-based DLL injection for Windows aiming at injecting stuff for FFXIV",
   "main": "index.js",
   "types": "./lib/index.d.ts",
