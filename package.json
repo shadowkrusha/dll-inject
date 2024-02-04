@@ -1,6 +1,6 @@
 {
   "name": "@ffxiv-teamcraft/dll-inject",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "LoadLibrary-based DLL injection for Windows aiming at injecting stuff for FFXIV",
   "main": "index.js",
   "types": "./lib/index.d.ts",
@@ -14,11 +14,11 @@
     "install": "node install.js"
   },
   "devDependencies": {
-    "node-gyp": "^8.2.0"
+    "node-gyp": "^10.0.1"
   },
   "dependencies": {
     "bindings": "^1.5.0",
     "cross-spawn": "^5.1.0",
-    "nan": "^2.11.1"
+    "nan": "^2.18.0"
   }
 }
