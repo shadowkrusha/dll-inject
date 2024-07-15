@@ -1,5 +1,4 @@
-var injector = require("bindings")({
+module.exports = require("bindings")({
     bindings: "injector.node",
     module_root: __dirname,
 });
-module.exports = injector;
