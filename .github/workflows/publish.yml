@@ -23,7 +23,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: dist-without-markdown
-          path: **
+          path: .
       # - name: Publish package on NPM 📦
       #   run: npm publish
       #   env:
