@@ -24,7 +24,7 @@ jobs:
         with:
           name: dist-without-markdown
           path: |
-            dist
+            dll-inject
             !dist/**/*.md
       # - name: Publish package on NPM 📦
       #   run: npm publish
