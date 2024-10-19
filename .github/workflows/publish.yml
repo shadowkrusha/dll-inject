@@ -1,30 +1,37 @@
 name: Publish to NPM
 on:
+  push:
+    branches: [ "main" ]
   pull_request:
-    branches: main
-  push: 
-    branches: main
-jobs:
-  build:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.x'
-          registry-url: 'https://registry.npmjs.org'
-      - name: Install dependencies
-        run: npm install
-      - name: Build and Test
-        run: npm test
-      - name: Archive production artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist-without-markdown
-          path: build/**
+    branches: [ "main" ]
+
       # - name: Publish package on NPM 📦
       #   run: npm publish
       #   env:
       #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm ci
+    - run: npm run build --if-present
+    - run: npm test
+
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-artifacts
+        path: build/**
