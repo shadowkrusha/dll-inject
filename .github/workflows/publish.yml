@@ -35,3 +35,9 @@ jobs:
       with:
         name: build-artifacts
         path: build/**
+
+    - name: Save Builds
+      uses: actions/upload-artifact@v4
+      with:
+        name: prebuilds
+        path: prebuilds/@ffxiv-teamcraft/**
