@@ -14,8 +14,8 @@ jobs:
   build:
 
     runs-on: windows-latest
-    env:
-      PREBUILD_GH_TOKEN: ${{ secrets.PREBUILD_GH_TOKEN }}
+    # env:
+    #   PREBUILD_GH_TOKEN: ${{ secrets.PREBUILD_GH_TOKEN }}
 
     strategy:
       matrix:
@@ -30,8 +30,14 @@ jobs:
         cache: 'npm'
     - run: npm install
     # - run: npm test
-    # - run: npm run prebuild
-    - run: npm run upload:electron
+    - run: npm run prebuild
+    # - run: npm run upload:electron
+
+    - name: Create Release
+      uses: ncipollo/release-action@v1
+      with: 
+        artifacts: "prebuilds/@ffxiv-teamcraft/**"
+      
 
     - name: display
       run: |
