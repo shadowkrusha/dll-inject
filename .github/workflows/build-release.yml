@@ -5,17 +5,10 @@ on:
   pull_request:
     branches: [ "main" ]
 
-      # - name: Publish package on NPM 📦
-      #   run: npm publish
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
 jobs:
   build:
 
     runs-on: windows-latest
-    # env:
-    #   PREBUILD_GH_TOKEN: ${{ secrets.PREBUILD_GH_TOKEN }}
 
     strategy:
       matrix:
@@ -32,18 +25,19 @@ jobs:
     # - run: npm test
     - run: npm run prebuild
     # - run: npm run upload:electron
+    # Moved to release-action
 
     - name: Create Release
       uses: ncipollo/release-action@v1
       with: 
-        artifacts: "prebuilds/@ffxiv-teamcraft/**"
+        artifacts: "prebuilds/@ffxiv-teamcraft/*"
         tag: 0.0.13
       
-    - name: Archive production artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-artifacts
-        path: build/**
+    # - name: Archive production artifacts
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: build-artifacts
+    #     path: build/**
 
     - name: Save Builds
       uses: actions/upload-artifact@v4
