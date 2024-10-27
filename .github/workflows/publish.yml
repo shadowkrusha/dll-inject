@@ -14,8 +14,7 @@ jobs:
   build:
 
     runs-on: windows-latest
-    env:
-      PREBUILD_GH_TOKEN: ${{ secrets.PREBUILD_GH_TOKEN }}
+
 
     strategy:
       matrix:
@@ -28,9 +27,11 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+      env:
+        PREBUILD_GH_TOKEN: ${{ secrets.PREBUILD_GH_TOKEN }}
     - run: npm install
     # - run: npm test
-    - run: npm run prebuild
+    # - run: npm run prebuild
     - run: npm run upload:electron
 
     - name: Archive production artifacts
