@@ -1,0 +1,115 @@
+name: dll-inject CI/CD Workflow
+
+on:
+    push:
+        branches:
+            - main
+    workflow_dispatch:
+env:
+    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+    test:
+        runs-on: windows-latest
+
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js 18.x
+              uses: actions/setup-node@v4
+              with:
+                node-version: "18.x"
+                registry-url: 'https://registry.npmjs.org'
+                cache: 'npm'
+
+            - name: Install Dependencies
+              run: |
+                npm install
+              working-directory: ${{ github.workspace }}
+
+            - name: Run Build
+              run: |
+                npm run prebuild
+                
+    build:
+        runs-on: windows-latest
+        needs: test
+
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js 18.x
+              uses: actions/setup-node@v4
+              with:
+                node-version: "18.x"
+                registry-url: 'https://registry.npmjs.org'
+                cache: 'npm'
+
+            - name: Install Dependencies
+              run: |
+                npm install
+              working-directory: ${{ github.workspace }}
+
+            - name: Run Semantic Release
+              run: |
+                npx semantic-release
+              working-directory: ${{ github.workspace }}
+
+            - name: Print package.json version (before)
+              run: |
+                echo "package.json version (before): $(jq -r .version package.json)"
+              working-directory: ${{ github.workspace }}
+
+            - name: Fetch Latest Commit
+              run: |
+                git fetch
+                git reset --hard origin/main
+
+            - name: Print package.json version (after)
+              run: |
+                echo "package.json version (after): $(jq -r .version package.json)"
+              working-directory: ${{ github.workspace }}
+
+            - name: Run Build
+              run: |
+                npm run prebuild
+
+            - name: Print Build Version
+              run: |
+                echo "Build version: $(jq -r .version package.json)"
+              working-directory: ${{ github.workspace }}
+
+            - name: Save Builds
+              uses: actions/upload-artifact@v4
+              with:
+                name: prebuilds
+                path: prebuilds/@shadowkrusha/**
+
+    deploy:
+        runs-on: windows-latest
+        needs: test
+
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js 18.x
+              uses: actions/setup-node@v4
+              with:
+                node-version: "18.x"
+                registry-url: 'https://registry.npmjs.org'
+                cache: 'npm'
+
+            - name: Install Dependencies
+              run: |
+                npm install
+              working-directory: ${{ github.workspace }}
+
+            - name: Run Build & Publish
+              run: |
+                npm run prebuild
+                npm publish --access public
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_GH_TOKEN }}
