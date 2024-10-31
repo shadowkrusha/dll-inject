@@ -1,12 +1,12 @@
 {
-  "name": "@ffxiv-teamcraft/dll-inject",
+  "name": "@shadowkrusha/dll-inject",
   "version": "0.0.11",
   "description": "LoadLibrary-based DLL injection for Windows aiming at injecting stuff for FFXIV",
   "main": "index.js",
   "types": "./lib/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Supamiu/dll-inject.git"
+    "url": "git+https://github.com/shadowkrusha/dll-inject.git"
   },
   "author": "Supamiu",
   "license": "MIT",
