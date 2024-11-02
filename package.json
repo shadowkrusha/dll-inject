@@ -26,6 +26,7 @@
     "upload": "prebuild -t 30.0.0 -t 31.0.0 -r electron --strip --verbose --upload ${PREBUILD_GH_TOKEN}"
   },
   "devDependencies": {
+    "@semantic-release/git": "^10.0.1",
     "node-gyp": "^10.0.1",
     "prebuild": "^13.0.1",
     "semantic-release": "^24.2.0"
