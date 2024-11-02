@@ -8,11 +8,8 @@ on:
 env:
     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-permissions:
-  contents: write # to be able to publish a GitHub release
-  issues: write # to be able to comment on released issues
-  pull-requests: write # to be able to comment on released pull requests
-  id-token: write # to enable use of OIDC for npm provenance
+permissions: 
+  contents: read
 
 jobs:
     test:
@@ -41,6 +38,11 @@ jobs:
     build:
         runs-on: windows-latest
         needs: test
+        permissions:
+          contents: write # to be able to publish a GitHub release
+          issues: write # to be able to comment on released issues
+          pull-requests: write # to be able to comment on released pull requests
+          id-token: write # to enable use of OIDC for npm provenance
 
         steps:
             - name: Checkout Repository
@@ -60,7 +62,7 @@ jobs:
 
             - name: Run Semantic Release
               run: |
-                npx semantic-release
+                npx semantic-release --dry-run
               working-directory: ${{ github.workspace }}
               env:
                 NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
