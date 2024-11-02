@@ -7,7 +7,6 @@ on:
     workflow_dispatch:
 env:
     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    NPM_TOKEN: ${{ secrets.NPM_GH_TOKEN }}
 
 jobs:
     test:
@@ -57,6 +56,8 @@ jobs:
               run: |
                 npx semantic-release
               working-directory: ${{ github.workspace }}
+              env:
+                NPM_TOKEN: ${{ secrets.NPM_GH_TOKEN }}
 
             - name: Print package.json version (before)
               run: |
