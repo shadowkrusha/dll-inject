@@ -60,3 +60,5 @@ typings/
 
 #node-gyp
 build
+
+.devcontainer
