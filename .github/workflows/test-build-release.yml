@@ -62,7 +62,7 @@ jobs:
 
             - name: Run Semantic Release
               run: |
-                npx semantic-release --dry-run
+                npx semantic-release
               working-directory: ${{ github.workspace }}
               env:
                 NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
