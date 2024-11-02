@@ -97,29 +97,37 @@ jobs:
                 name: prebuilds
                 path: prebuilds/@shadowkrusha/**
 
-    deploy:
-        runs-on: windows-latest
-        needs: build
+            - name: Create Release
+              uses: ncipollo/release-action@v1
+              with: 
+                artifacts: "prebuilds/@shadowkrusha/*"
+                allowUpdates: true
+                replacesArtifacts: true
+                skipIfReleaseExists: false
 
-        steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v4
+    # deploy:
+    #     runs-on: windows-latest
+    #     needs: build
 
-            - name: Setup Node.js 20
-              uses: actions/setup-node@v4
-              with:
-                node-version: "20"
-                registry-url: 'https://registry.npmjs.org'
-                cache: 'npm'
+    #     steps:
+    #         - name: Checkout Repository
+    #           uses: actions/checkout@v4
 
-            - name: Install Dependencies
-              run: |
-                npm install
-              working-directory: ${{ github.workspace }}
+    #         - name: Setup Node.js 20
+    #           uses: actions/setup-node@v4
+    #           with:
+    #             node-version: "20"
+    #             registry-url: 'https://registry.npmjs.org'
+    #             cache: 'npm'
 
-            - name: Run Build & Publish
-              run: |
-                npm run prebuild
-                npm publish --access public
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    #         - name: Install Dependencies
+    #           run: |
+    #             npm install
+    #           working-directory: ${{ github.workspace }}
+
+    #         - name: Run Build & Publish
+    #           run: |
+    #             npm run prebuild
+    #             npm publish --access public
+    #           env:
+    #               NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
