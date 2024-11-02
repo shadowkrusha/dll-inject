@@ -84,7 +84,7 @@ jobs:
 
             - name: Run Build
               run: |
-                git pull
+                git fetch --tags --force
                 npm run prebuild
 
             - name: Print Build Version
