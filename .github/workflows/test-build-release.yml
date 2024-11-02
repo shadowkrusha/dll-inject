@@ -60,10 +60,16 @@ jobs:
                 npm install
               working-directory: ${{ github.workspace }}
 
-            - name: Run Semantic Release
-              run: |
-                npx semantic-release
-              working-directory: ${{ github.workspace }}
+            # - name: Run Semantic Release
+            #   run: |
+            #     npx semantic-release
+            #   working-directory: ${{ github.workspace }}
+            #   env:
+            #     NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+            - name: Semantic Release
+              uses: cycjimmy/semantic-release-action@v4
+              id: semantic
               env:
                 NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -101,6 +107,7 @@ jobs:
             - name: Create Release
               uses: ncipollo/release-action@v1
               with: 
+                tag: ${{ steps.semantic.outputs.new_release_git_tag }}
                 artifacts: "prebuilds/@shadowkrusha/*"
                 allowUpdates: true
                 replacesArtifacts: true
