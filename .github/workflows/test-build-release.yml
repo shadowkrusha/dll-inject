@@ -90,7 +90,6 @@ jobs:
 
             - name: Run Build
               run: |
-                git fetch --tags --force
                 npm run prebuild
 
             - name: Print Build Version
