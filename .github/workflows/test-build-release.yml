@@ -115,7 +115,7 @@ jobs:
               # if: steps.semantic.outputs.new_release_published == 'true'
               uses: ncipollo/release-action@v1
               with: 
-                tag: ${{ steps.build-number.outputs.BUILD_VERSION }}
+                tag: v$(jq -r .version package.json)
                 artifacts: "prebuilds/@shadowkrusha/*"
                 allowUpdates: true
                 replacesArtifacts: true
