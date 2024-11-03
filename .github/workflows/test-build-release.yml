@@ -39,17 +39,17 @@ jobs:
             #   env:
             #     NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+            - name: Install Dependencies
+              run: |
+                npm install
+              working-directory: ${{ github.workspace }}
+
             - name: Run Semantic Release
               run: |
                 npx semantic-release --dry-run
               working-directory: ${{ github.workspace }}
               env:
                 NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-            - name: Install Dependencies
-              run: |
-                npm install
-              working-directory: ${{ github.workspace }}
 
             - name: Run Build
               run: |
