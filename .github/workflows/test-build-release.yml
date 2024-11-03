@@ -102,7 +102,8 @@ jobs:
               run: |
                 echo "Build version: $(jq -r .version package.json)"
                 "BUILD_VERSION=$(jq -r .version package.json)"
-                echo "Build version: $env:BUILD_VERSION"
+                "BUILD_TAG=v$(jq -r .version package.json)"
+                echo "Build version: $BUILD_VERSION"
               working-directory: ${{ github.workspace }}
 
             - name: Save Builds
@@ -115,7 +116,7 @@ jobs:
               # if: steps.semantic.outputs.new_release_published == 'true'
               uses: ncipollo/release-action@v1
               with: 
-                tag: v$(jq -r .version package.json)
+                tag: ${{ env.BUILD_TAG }}
                 artifacts: "prebuilds/@shadowkrusha/*"
                 allowUpdates: true
                 replacesArtifacts: true
