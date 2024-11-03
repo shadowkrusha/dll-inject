@@ -201,6 +201,30 @@ static int injectHandle(HANDLE process, const wchar_t *dllPath)
 	return 0;
 }
 
+// Returns true if a process with the given name is running
+bool isProcessRunningInternal(const char *processName)
+{
+	HANDLE process = getProcess(processName);
+	if (process == NULL)
+	{
+		return false;
+	}
+	CloseHandle(process);
+	return true;
+}
+
+// Returns true if a process with the given pid is running
+bool isProcessRunningInternalPID(DWORD pid)
+{
+	HANDLE process = getProcessPID(pid);
+	if (process == NULL)
+	{
+		return false;
+	}
+	CloseHandle(process);
+	return true;
+}
+
 // Returns PID if a process with the given name is running, else -1
 int getPIDByNameInternal(const char *processName)
 {
@@ -267,6 +291,57 @@ NAN_METHOD(injectPID)
 	delete[] dllName;
 
 	Local<Int32> res = Nan::New(val);
+	info.GetReturnValue().Set(res);
+}
+
+NAN_METHOD(isProcessRunning)
+{
+	if (info.Length() != 1)
+	{
+		return;
+	}
+	if (!info[0]->IsString())
+	{
+		return;
+	}
+
+	Local<Value> value;
+
+	(info[0]->ToString(Nan::GetCurrentContext())).ToLocal(&value);
+
+	String::Utf8Value arg(Isolate::GetCurrent(), value);
+
+	if (!(*arg))
+	{
+		return;
+	}
+
+	const char *processName = *arg;
+
+	bool val = isProcessRunningInternal(processName);
+
+	Local<Boolean> res = Nan::New(val);
+	info.GetReturnValue().Set(res);
+}
+
+NAN_METHOD(isProcessRunningPID)
+{
+	if (info.Length() != 1)
+	{
+		return;
+	}
+	if (!info[0]->IsUint32())
+	{
+		return;
+	}
+
+	uint32_t value = info[0]->IsUndefined() ? 0 : Nan::To<uint32_t>(info[0]).FromJust();
+
+	DWORD arg(value);
+
+	bool val = isProcessRunningInternalPID(arg);
+
+	Local<Boolean> res = Nan::New(val);
 	info.GetReturnValue().Set(res);
 }
 
