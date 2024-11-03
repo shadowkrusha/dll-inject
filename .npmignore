@@ -1,0 +1,5 @@
+build
+prebuilds
+.vscode
+.github
+.releaserc
