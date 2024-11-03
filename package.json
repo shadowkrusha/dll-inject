@@ -1,6 +1,6 @@
 {
   "name": "@shadowkrusha/dll-inject",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "LoadLibrary-based DLL injection for Windows aiming at injecting stuff for FFXIV",
   "main": "index.js",
   "types": "./lib/index.d.ts",
