@@ -1,0 +1,110 @@
+name: dll-inject CI/CD Workflow
+
+on:
+    push:
+        branches:
+            - main
+    workflow_dispatch:
+env:
+    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+permissions: 
+  contents: read
+
+jobs:
+    test:
+        runs-on: windows-latest
+        permissions:
+          contents: write # to be able to publish a GitHub release
+          issues: write # to be able to comment on released issues
+          pull-requests: write # to be able to comment on released pull requests
+          id-token: write # to enable use of OIDC for npm provenance
+
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js 20
+              uses: actions/setup-node@v4
+              with:
+                node-version: "20"
+                registry-url: 'https://registry.npmjs.org'
+                cache: 'npm'
+
+            - name: Semantic Release
+              uses: cycjimmy/semantic-release-action@v4
+              with:
+                dry_run: true
+              id: semantic
+              env:
+                NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+            - name: Install Dependencies
+              run: |
+                npm install
+              working-directory: ${{ github.workspace }}
+
+            - name: Run Build
+              run: |
+                npm run prebuild
+                
+    build:
+        runs-on: windows-latest
+        needs: test
+        permissions:
+          contents: write # to be able to publish a GitHub release
+          issues: write # to be able to comment on released issues
+          pull-requests: write # to be able to comment on released pull requests
+          id-token: write # to enable use of OIDC for npm provenance
+
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js 20
+              uses: actions/setup-node@v4
+              with:
+                node-version: "20"
+                registry-url: 'https://registry.npmjs.org'
+                cache: 'npm'
+
+            - name: Install Dependencies
+              run: |
+                npm install
+              working-directory: ${{ github.workspace }}
+
+            - name: Semantic Release
+              uses: cycjimmy/semantic-release-action@v4
+              with:
+                extra_plugins: |
+                  @semantic-release/changelog
+                  @semantic-release/git
+              id: semantic
+              env:
+                NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+            - name: Run Build
+              run: |
+                npm run prebuild
+
+            - name: Print Build Version
+              id: build-number
+              run: |
+                echo "Build version: $(jq -r .version package.json)"
+              working-directory: ${{ github.workspace }}
+
+            - name: Save Builds
+              uses: actions/upload-artifact@v4
+              with:
+                name: prebuilds
+                path: prebuilds/@ffxiv-teamcraft/**
+
+            - name: Create Release
+              if: steps.semantic.outputs.new_release_published == 'true'
+              uses: ncipollo/release-action@v1
+              with: 
+                tag: ${{ steps.semantic.outputs.new_release_git_tag }}
+                artifacts: "prebuilds/@ffxiv-teamcraft/*"
+                allowUpdates: true
+                replacesArtifacts: true
+                skipIfReleaseExists: false
