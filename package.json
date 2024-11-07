@@ -22,7 +22,7 @@
     "test": "npm run compile && node test/index.js",
     "install": "prebuild-install --runtime napi || node install.js",
     "rebuild": "node-gyp rebuild",
-    "prebuild": "prebuild -t 30.0.0 -t 31.0.0 -r electron --strip --verbose",
+    "prebuild": "prebuild --all -r electron --strip --verbose",
     "upload": "prebuild -t 30.0.0 -t 31.0.0 -r electron --strip --verbose --upload ${PREBUILD_GH_TOKEN}"
   },
   "devDependencies": {
