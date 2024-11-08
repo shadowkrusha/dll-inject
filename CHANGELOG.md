@@ -1,3 +1,10 @@
+## [0.0.15](https://github.com/Supamiu/dll-inject/compare/v0.0.14...v0.0.15) (2024-11-08)
+
+
+### Bug Fixes
+
+* remove now useless testé folder ([a5d1336](https://github.com/Supamiu/dll-inject/commit/a5d1336a282158b4d2ae63ccd47dda3a8a6e5284))
+
 ## [0.0.14](https://github.com/Supamiu/dll-inject/compare/v0.0.13...v0.0.14) (2024-11-04)
 
 
