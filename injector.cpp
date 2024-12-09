@@ -1,17 +1,12 @@
-#include "functions.h"
 #include <SDKDDKVer.h>
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #define UNICODE // Using unicode - so windows functions take wchars
 #include <TlHelp32.h>
 #include <AclAPI.h>
-#include <wchar.h>
-#include <string>
 #include <iostream>
-#include <codecvt>
-#include <fstream>
 
-using namespace v8;
+#include <napi.h>
 
 std::string GetLastErrorString()
 {
@@ -201,6 +196,30 @@ static int injectHandle(HANDLE process, const wchar_t *dllPath)
 	return 0;
 }
 
+// Returns true if a process with the given name is running
+bool isProcessRunningInternal(const char *processName)
+{
+	HANDLE process = getProcess(processName);
+	if (process == NULL)
+	{
+		return false;
+	}
+	CloseHandle(process);
+	return true;
+}
+
+// Returns true if a process with the given pid is running
+bool isProcessRunningPIDInternal(DWORD pid)
+{
+	HANDLE process = getProcessPID(pid);
+	if (process == NULL)
+	{
+		return false;
+	}
+	CloseHandle(process);
+	return true;
+}
+
 // Returns PID if a process with the given name is running, else -1
 int getPIDByNameInternal(const char *processName)
 {
@@ -215,88 +234,126 @@ int getPIDByNameInternal(const char *processName)
 }
 
 // Inject a DLL file into the process with the given pid
-int injectInternalPID(DWORD pid, const wchar_t *dllFile)
+int injectInternalPID(DWORD pid, const char *dllFile)
 {
-	return injectHandle(getProcessPID(pid), dllFile);
+	wchar_t wDllName[MAX_PATH];
+	mbstate_t mbstate;
+	mbsrtowcs_s(NULL, wDllName, &dllFile, MAX_PATH, &mbstate);
+
+	return injectHandle(getProcessPID(pid), wDllName);
 }
 
-wchar_t *to_wstring(const String::Utf8Value &str)
+Napi::Value isProcessRunning(const Napi::CallbackInfo &info)
 {
-	int len = MultiByteToWideChar(CP_UTF8, NULL, *str, -1, NULL, 0);
-	wchar_t *output_buffer = new wchar_t[len + 1];
-	if (output_buffer)
-	{
-		MultiByteToWideChar(CP_UTF8, NULL, *str, -1, output_buffer, len);
-		output_buffer[len] = L'\0';
-	}
-
-	return output_buffer;
-}
-
-NAN_METHOD(injectPID)
-{
-	if (info.Length() != 2)
-	{
-		Local<Int32> res = Nan::New<Int32>(8);
-		info.GetReturnValue().Set(res);
-		return;
-	}
-	if (!info[0]->IsUint32() || !info[1]->IsString())
-	{
-		Local<Int32> res = Nan::New(9);
-		info.GetReturnValue().Set(res);
-		return;
-	}
-
-	uint32_t value0 = info[0]->IsUndefined() ? 0 : Nan::To<uint32_t>(info[0]).FromJust();
-	DWORD arg0(value0);
-
-	Local<Value> value1;
-	(info[1]->ToString(Nan::GetCurrentContext())).ToLocal(&value1);
-	String::Utf8Value arg1(Isolate::GetCurrent(), value1);
-
-	if (!(*arg1))
-	{
-		Local<Int32> res = Nan::New(10);
-		info.GetReturnValue().Set(res);
-		return;
-	}
-	wchar_t *dllName = to_wstring(arg1);
-
-	int val = injectInternalPID(arg0, dllName);
-	delete[] dllName;
-
-	Local<Int32> res = Nan::New(val);
-	info.GetReturnValue().Set(res);
-}
-
-NAN_METHOD(getPIDByName)
-{
+	Napi::Env env = info.Env();
 
 	if (info.Length() != 1)
 	{
-		return;
+		return env.Null();
 	}
-	if (!info[0]->IsString())
+
+	if (!info[0].IsString())
 	{
-		return;
+		return env.Null();
 	}
 
-	Local<Value> value;
+	// Get Argument as string
+	std::string arg = info[0].As<Napi::String>().Utf8Value();
 
-	(info[0]->ToString(Nan::GetCurrentContext())).ToLocal(&value);
-
-	String::Utf8Value arg(Isolate::GetCurrent(), value);
-
-	if (!(*arg))
+	const char *processName = arg.c_str();
+	if (!(*processName))
 	{
-		return;
+		return env.Null();
 	}
 
-	const char *processName = *arg;
+	bool val = isProcessRunningInternal(processName);
 
-	int val = getPIDByNameInternal(processName);
-
-	Local<Int32> res = Nan::New(val);
-	info.GetReturnValue().Set(res);
+	return Napi::Boolean::New(env, true);
 }
+
+Napi::Value isProcessRunningPID(const Napi::CallbackInfo &info)
+{
+	Napi::Env env = info.Env();
+
+	if (info.Length() != 1)
+	{
+		return env.Null();
+	}
+
+	if (!info[0].IsNumber())
+	{
+		return env.Null();
+	}
+
+	Napi::Number pid = info[0].As<Napi::Number>();
+
+	bool val = isProcessRunningPIDInternal(pid.Int32Value());
+
+	return Napi::Boolean::New(env, val);
+}
+
+Napi::Value getPIDByName(const Napi::CallbackInfo &info)
+{
+	Napi::Env env = info.Env();
+
+	if (info.Length() != 1)
+	{
+		return env.Null();
+	}
+
+	if (!info[0].IsString())
+	{
+		return env.Null();
+	}
+
+	// Get Argument as string
+	std::string arg = info[0].As<Napi::String>().Utf8Value();
+
+	const char *processName = arg.c_str();
+	if (!(*processName))
+	{
+		return env.Null();
+	}
+
+	bool val = getPIDByNameInternal(processName);
+
+	return Napi::Boolean::New(env, true);
+}
+
+Napi::Value injectPID(const Napi::CallbackInfo &info)
+{
+	Napi::Env env = info.Env();
+
+	if (info.Length() != 2)
+	{
+		return Napi::Number::New(env, 8);
+	}
+
+	if (!info[0].IsNumber() || !info[1].IsString())
+	{
+		return Napi::Number::New(env, 9);
+	}
+
+	// Get Argument as Number
+	Napi::Number pid = info[0].As<Napi::Number>();
+
+	// Get Argument as string
+	std::string arg1 = info[1].As<Napi::String>().Utf8Value();
+
+	const char *dllName = arg1.c_str();
+
+	bool val = injectInternalPID(pid.Int32Value(), dllName);
+
+	return Napi::Boolean::New(env, true);
+}
+
+Napi::Object InitAll(Napi::Env env, Napi::Object exports)
+{
+	exports.Set(Napi::String::New(env, "isProcessRunning"), Napi::Function::New(env, isProcessRunning));
+	exports.Set(Napi::String::New(env, "isProcessRunningPID"), Napi::Function::New(env, isProcessRunningPID));
+	exports.Set(Napi::String::New(env, "getPIDByName"), Napi::Function::New(env, getPIDByName));
+	exports.Set(Napi::String::New(env, "injectPID"), Napi::Function::New(env, injectPID));
+	return exports;
+}
+
+NODE_API_MODULE(injector, InitAll)

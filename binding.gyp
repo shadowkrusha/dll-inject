@@ -2,26 +2,26 @@
 	"targets": [
 		{
 			"target_name": "injector",
+			"cflags!": [
+				"-fno-exceptions"
+			],
+			"cflags_cc!": [
+				"-fno-exceptions"
+			],
 			"sources": [
-				"injector.cc",
-				"functions.cc"
+				"injector.cpp"
 			],
 			"include_dirs": [
-				"<!(node -e \"require('nan')\")"
+				"<!@(node -p \"require('node-addon-api').include\")"
 			],
-			"msvs_settings": {
-				"VCCLCompilerTool": {
-					"AdditionalOptions": [
-						"-std:c++17"
-					]
-				}
-			},
-			"defines": [
-              "NAPI_VERSION=<(napi_build_version)"
-            ]
+			"libraries": [],
+			"dependencies": [
+				"<!(node -p \"require('node-addon-api').gyp\")"
+			],
+			"defines": [ 
+            	"NAPI_DISABLE_CPP_EXCEPTIONS",
+				"NAPI_VERSION=<(napi_build_version)",
+			]
 		}
-	],
-    "variables": {
-        "openssl_fips": ""
-    }
+	]
 }

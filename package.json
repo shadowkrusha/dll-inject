@@ -22,20 +22,20 @@
     "test": "npm run compile && node test/index.js",
     "install": "prebuild-install --runtime napi || node install.js",
     "rebuild": "node-gyp rebuild",
-    "prebuild": "prebuild -t 30.0.0 -t 31.0.0 -r electron --strip --verbose",
+    "prebuild": "prebuild -t 30.0.0 -t 31.0.0 -t 32.0.0 -t 33.0.0 -r electron --strip --verbose",
     "upload:electron": "prebuild -t 30.0.0 -t 31.0.0 -r electron --strip --verbose --upload ${PREBUILD_GH_TOKEN}"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "semantic-release": "^24.2.0",
-    "node-gyp": "^10.2.0",
+    "node-gyp": "^11.0.0",
     "prebuild": "^13.0.1"
   },
   "dependencies": {
     "bindings": "^1.5.0",
     "cross-spawn": "^5.1.0",
-    "nan": "^2.22.0",
+    "node-addon-api": "^8.3.0",
     "prebuild-install": "^7.1.2"
   }
 }
